@@ -2,7 +2,7 @@ from typing import Union, Tuple, Any, List
 
 import pytest
 
-from runtime_typecheck.runtime_typecheck import check_type, check_args, DetailedTypeError
+from runtime_typecheck import check_type, check_args, DetailedTypeError
 
 
 def test_any():
