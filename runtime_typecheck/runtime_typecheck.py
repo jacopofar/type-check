@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+"""Provides `check_type`, `check_args`, `DetailedTypeError`"""
 from functools import wraps
 import inspect
 from typing import (
@@ -10,10 +10,12 @@ from typing import (
     Type,
     Union)
 
-IssueDescription = NamedTuple('IssueDescription', [('name', str), ('expected_type', Any), ('value', Any)])
+IssueDescription = NamedTuple('IssueDescription',
+                              [('name', str), ('expected_type', Any), ('value', Any)])
 
 
 class DetailedTypeError(TypeError):
+    """Error for more detailed info about type mismatches"""
     issues = []
 
     def __init__(self, issues: List[IssueDescription]):
@@ -21,7 +23,8 @@ class DetailedTypeError(TypeError):
         super().__init__(f'typing issues found:{issues}')
 
     def __str__(self):
-        return ' '.join([f'{i.name} had to be of type {i.expected_type} but was {i.value}, which has type {type(i.value)}' for i in self.issues])
+        return ' '.join([f'{i.name} had to be of type {i.expected_type} but was {i.value}, '
+                         f'which has type {type(i.value)}' for i in self.issues])
 
     def __iter__(self):
         return (x for x in self.issues)
@@ -29,16 +32,18 @@ class DetailedTypeError(TypeError):
     def __len__(self):
         return len(self.issues)
 
+# pylint: disable=C0123
 def check_type(obj: Any,
                candidate_type: Any,
                reltype: str = 'invariant') -> bool:
-    """Tell wether a value correspond to a type, optionally specifying the type as contravariant or covariant.
+    """Tell wether a value correspond to a type,
+    optionally specifying the type as contravariant or covariant.
 
     Args:
         obj (Any): The value to check.
         candidate_type (Any): The type to check the object against.
-        reltype (:obj:`str`, optional): Variance of the type, can be contravariant, covariant or invariant.
-            By default is invariant.
+        reltype (:obj:`str`, optional): Variance of the type, can be contravariant,
+            covariant or invariant. By default is invariant.
     Returns:
         bool: True if the type is fine, False otherwise
 
@@ -84,8 +89,8 @@ def check_type(obj: Any,
     if type(candidate_type) == type(TypeVar):
         # TODO consider contravariant, variant and bound
         # invariant with a list of constraints, acts like a Tuple
-        if not (candidate_type.__covariant__ or candidate_type.__contracovariant__) and len(
-                candidate_type.__constraints__) > 0:
+        if not (candidate_type.__covariant__ or candidate_type.__contracovariant__) and \
+                candidate_type.__constraints__:
             return any(check_type(obj, t) for t in candidate_type.__constraints__)
 
     if type(candidate_type) == type(Type):
@@ -104,14 +109,15 @@ def check_args(func):
     """
 
     @wraps(func)
-    def check(*args, **kwargs):
+    def check(*args, **kwargs):  # pylint: disable=C0111
         sig = inspect.signature(func)
         binding = sig.bind(*args, **kwargs)
         found_errors = []
         for name, value in binding.arguments.items():
             if not check_type(value, sig.parameters[name].annotation):
-                found_errors.append(IssueDescription(name, sig.parameters[name].annotation, value))
-        if len(found_errors) > 0:
+                found_errors.append(IssueDescription(
+                    name, sig.parameters[name].annotation, value))
+        if found_errors:
             raise DetailedTypeError(found_errors)
         return func(*args, **kwargs)
 
