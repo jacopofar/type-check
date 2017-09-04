@@ -23,6 +23,11 @@ class DetailedTypeError(TypeError):
     def __str__(self):
         return ' '.join([f'{i.name} had to be of type {i.expected_type} but was {i.value}, which has type {type(i.value)}' for i in self.issues])
 
+    def __iter__(self):
+        return (x for x in self.issues)
+
+    def __len__(self):
+        return len(self.issues)
 
 def check_type(obj: Any,
                candidate_type: Any,

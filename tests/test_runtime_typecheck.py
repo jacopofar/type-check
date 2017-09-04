@@ -85,3 +85,14 @@ def test_raises_with_dictionary():
     with pytest.raises(DetailedTypeError):
         param_dic = {'y': 11, 'z': (1, '0')}
         dummy_fun_with_nonoptional(49, **param_dic)
+
+
+def test_exception_content():
+    with pytest.raises(DetailedTypeError) as excinfo:
+        param_dic = {'y': 11, 'z': (1, '0')}
+        dummy_fun_with_nonoptional('I am a string!', **param_dic)
+    # The two issues were identified
+    assert ('x', int, 'I am a string!') in excinfo.value
+    assert ('y', str, 11) in excinfo.value
+    # and nothing else was
+    assert len(excinfo.value) == 2
