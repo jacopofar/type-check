@@ -94,9 +94,11 @@ def test_raises_simple():
     with pytest.raises(DetailedTypeError):
         dummy_fun(1, '1', ('1', '0'))
     with pytest.raises(TypeError):
-        dummy_fun(1, '1', (1, '0'), extra=42)
+        dummy_fun(1, '1', (1, '0'), extra=42) # pylint: disable=E1123
     with pytest.raises(DetailedTypeError):
         dummy_fun(a=1, b='1', c=('1', '0'))
+    with pytest.raises(TypeError):
+        dummy_fun_with_nonoptional() # pylint: disable=E1120
 
 
 def test_raises_with_dictionary():
