@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Set, Sized, Tuple, Union
+from typing import Any, AnyStr, Dict, List, Optional, Set, Sized, TypeVar, Tuple, Union
 
 import pytest
 
@@ -63,6 +63,15 @@ def test_aliases():
     Vector = List[float]
     assert check_type([1.0, 2.0], Vector)
     assert not check_type(1, Vector)
+
+
+def test_typevar():
+    T = TypeVar('T') # Any type
+    Num = TypeVar('IT', int, float) # Either int or float
+    assert check_type(1, T)
+    assert check_type(1, Num)
+    assert check_type(1.0, Num)
+    assert not check_type('str', Num)
 
 
 # Some important ABCs

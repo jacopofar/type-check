@@ -74,11 +74,12 @@ def check_type(obj: Any,
         return all(check_type(o, candidate_type.__args__[0], reltype) for o in obj)
 
     # TypeVar, this is tricky
-    if type(candidate_type) == type(TypeVar):
+    if type(candidate_type) == TypeVar:
         # TODO consider contravariant, variant and bound
         # invariant with a list of constraints, acts like a Tuple
-        if not (candidate_type.__covariant__ or candidate_type.__contracovariant__) and \
-                candidate_type.__constraints__:
+        if not candidate_type.__constraints__:
+            return True
+        if not (candidate_type.__covariant__ or candidate_type.__contravariant__):
             return any(check_type(obj, t) for t in candidate_type.__constraints__)
 
     if type(candidate_type) == type(Type):
