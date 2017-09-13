@@ -59,6 +59,12 @@ def test_nested_types():
     assert not check_type([1.11, 27, 33, 1956], List[Tuple[int, str]])
 
 
+def test_aliases():
+    Vector = List[float]
+    assert check_type([1.0, 2.0], Vector)
+    assert not check_type(1, Vector)
+
+
 # Some important ABCs
 def test_sized():
     assert check_type([1, 27, 33, 1956], Sized)
