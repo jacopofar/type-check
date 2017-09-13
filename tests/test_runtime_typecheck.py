@@ -15,6 +15,13 @@ def test_numbers():
     assert not check_type(3, float)
 
 
+def test_strings():
+    assert check_type('stringy mcstringface', str)
+    assert check_type(u'a string', AnyStr)
+    assert check_type(b'another string', AnyStr)
+    assert check_type(f'a third string', AnyStr)
+
+
 def test_unions():
     assert check_type(3, Union[int, str])
     assert check_type("hello", Union[int, str])
@@ -72,6 +79,11 @@ def test_typevar():
     assert check_type(1, Num)
     assert check_type(1.0, Num)
     assert not check_type('str', Num)
+
+
+def test_optional():
+    assert check_type([1], Optional[List[int]])
+    assert check_type(None, Optional[List[int]])
 
 
 # Some important ABCs
