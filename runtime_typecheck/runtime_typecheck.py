@@ -11,35 +11,6 @@ from typing import (
     Type,
     Union)
 
-class IssueDescription(NamedTuple):
-    """Represents single type mismatch"""
-    name: str
-    expected_type: Any
-    value: Any
-
-    def __repr__(self) -> str:
-        return f'{self.name} had to be of type {self.expected_type} but was {self.value}, ' \
-               f'which has type {type(self.value)}'
-
-
-class DetailedTypeError(TypeError):
-    """Error for more detailed info about type mismatches"""
-    issues = []
-
-    def __init__(self, issues: List[IssueDescription]):
-        self.issues = issues
-        super().__init__(f'typing issues found:{issues}')
-
-    def __str__(self):
-        return '\n'.join(str(i) for i in self.issues)
-
-    def __iter__(self):
-        return (x for x in self.issues)
-
-    def __len__(self):
-        return len(self.issues)
-
-
 # pylint: disable=C0123
 def check_type(obj: Any,
                candidate_type: Any,
@@ -96,11 +67,11 @@ def check_type(obj: Any,
                    for (k, v) in obj.items())
 
     # List or Set, each element matches the type in __args__
-    if type(candidate_type) == type(List) and (list in candidate_type.__bases__ or set in candidate_type.__bases__):
+    if type(candidate_type) == type(List) and \
+       (list in candidate_type.__bases__ or set in candidate_type.__bases__):
         if not hasattr(obj, '__len__'):
             return False
         return all(check_type(o, candidate_type.__args__[0], reltype) for o in obj)
-
 
     # TypeVar, this is tricky
     if type(candidate_type) == type(TypeVar):
@@ -144,4 +115,30 @@ def check_args(func):
     return check
 
 
-print(check_type([1, 27, 33, 1956], List[int]))
+class IssueDescription(NamedTuple):
+    """Represents single type mismatch"""
+    name: str
+    expected_type: Any
+    value: Any
+
+    def __repr__(self) -> str:
+        return f'{self.name} had to be of type {self.expected_type} but was {self.value}, ' \
+               f'which has type {type(self.value)}'
+
+
+class DetailedTypeError(TypeError):
+    """Error for more detailed info about type mismatches"""
+    issues = []
+
+    def __init__(self, issues: List[IssueDescription]):
+        self.issues = issues
+        super().__init__(f'typing issues found:{issues}')
+
+    def __str__(self):
+        return '\n'.join(str(i) for i in self.issues)
+
+    def __iter__(self):
+        return (x for x in self.issues)
+
+    def __len__(self):
+        return len(self.issues)
