@@ -11,8 +11,15 @@ from typing import (
     Type,
     Union)
 
-IssueDescription = NamedTuple('IssueDescription',
-                              [('name', str), ('expected_type', Any), ('value', Any)])
+class IssueDescription(NamedTuple):
+    """Represents single type mismatch"""
+    name: str
+    expected_type: Any
+    value: Any
+
+    def __repr__(self) -> str:
+        return f'{self.name} had to be of type {self.expected_type} but was {self.value}, ' \
+               f'which has type {type(self.value)}'
 
 
 class DetailedTypeError(TypeError):
@@ -24,8 +31,7 @@ class DetailedTypeError(TypeError):
         super().__init__(f'typing issues found:{issues}')
 
     def __str__(self):
-        return ' '.join([f'{i.name} had to be of type {i.expected_type} but was {i.value}, '
-                         f'which has type {type(i.value)}' for i in self.issues])
+        return '\n'.join(str(i) for i in self.issues)
 
     def __iter__(self):
         return (x for x in self.issues)
