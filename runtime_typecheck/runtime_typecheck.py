@@ -109,18 +109,18 @@ def check_args(func):
             binding = sig.bind(*args, **kwargs)
         except TypeError as te:
             for name, metadata in sig.parameters.items():
-                # protected member and then comparison with the message error as a string :(
+                # Comparison with the message error as a string :(
                 # Know a nicer way? Please drop me a message
-                if metadata.default == inspect._empty:
+                if metadata.default == inspect.Parameter.empty:
                     # copy from inspect module, it is the very same error message
                     error_in_case = 'missing a required argument: {arg!r}'.format(arg=name)
                     if str(te) == error_in_case:
                         found_errors.append(IssueDescription(
                             name, sig.parameters[name].annotation, None, True))
-            # NOTE currently only find one, at most, detecting what else is missing is tricky if not impossible
-            if len(found_errors) == 0:
-                raise DetailedTypeError([IssueDescription(
-                    None, None, None, None, str(te))])
+            # NOTE currently only find one, at most, detecting what else
+            # is missing is tricky if not impossible
+            if not found_errors:
+                raise DetailedTypeError([IssueDescription(None, None, None, None, str(te))])
             raise DetailedTypeError(found_errors)
 
         for name, value in binding.arguments.items():
@@ -147,10 +147,10 @@ class IssueDescription(NamedTuple):
         if self.name is None:
             return f'Generic type error: {self.generic_message}'
         if self.missing_parameter:
-            return f'{self.name} has no default value and was not given,expected a value of type {self.expected_type}'
-        else:
-            return f'{self.name} had to be of type {self.expected_type} but was {self.value}, ' \
-               f'which has type {type(self.value)}'
+            return f'{self.name} has no default value and was not given,' \
+                   f'expected a value of type {self.expected_type}'
+        return f'{self.name} had to be of type {self.expected_type} but was {self.value}, ' \
+                   f'which has type {type(self.value)}'
 
 
 class DetailedTypeError(TypeError):
