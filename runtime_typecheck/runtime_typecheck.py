@@ -150,7 +150,7 @@ class IssueDescription(NamedTuple):
             return f'{self.name} has no default value and was not given,' \
                    f'expected a value of type {self.expected_type}'
         return f'{self.name} had to be of type {self.expected_type} but was {self.value}, ' \
-                   f'which has type {type(self.value)}'
+               f'which has type {type(self.value)}'
 
 
 class DetailedTypeError(TypeError):

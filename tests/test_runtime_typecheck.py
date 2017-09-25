@@ -77,7 +77,7 @@ def test_aliases():
 
 def test_typevar():
     T = TypeVar('T') # Any type
-    Num = TypeVar('IT', int, float) # Either int or float
+    Num = TypeVar('Num', int, float) # Either int or float
     assert check_type(1, T)
     assert check_type(1, Num)
     assert check_type(1.0, Num)
@@ -87,6 +87,7 @@ def test_typevar():
 def test_optional():
     assert check_type([1], Optional[List[int]])
     assert check_type(None, Optional[List[int]])
+    assert not check_type([1.0], Optional[List[int]])
 
 
 # Some important ABCs
